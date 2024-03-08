@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -10,12 +10,14 @@ import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Papa from "papaparse";
+import CheckIcon from "@mui/icons-material/Check";
+import ClearIcon from "@mui/icons-material/Clear";
+import Checkbox from "@mui/material/Checkbox";
 
 const Home = () => {
   const [accomodations, setAccomodations] = useState([]);
   const [filteredAccommodations, setFilteredAccommodations] = useState([]);
   const [filterValues, setFilterValues] = useState({
-    id: "",
     minPrice: "",
     maxPrice: "",
     rooms: "",
@@ -44,23 +46,40 @@ const Home = () => {
   };
 
   const applyFilters = () => {
-    const { id, minPrice, maxPrice, rooms } = filterValues;
+    const {
+      minPrice,
+      maxPrice,
+      rooms,
+      meters,
+      balcony,
+      petFriendly,
+      pool,
+      garden,
+    } = filterValues;
     let filteredData = accomodations.filter((accommodation) => {
       let match = true;
-
-      if (id && accommodation.id !== parseInt(id)) {
-        match = false;
-      }
-
       if (minPrice && accommodation.price < parseFloat(minPrice)) {
         match = false;
       }
-
       if (maxPrice && accommodation.price > parseFloat(maxPrice)) {
         match = false;
       }
-
       if (rooms && accommodation.rooms !== parseInt(rooms)) {
+        match = false;
+      }
+      if (meters && accommodation.meters !== parseInt(meters)) {
+        match = false;
+      }
+      if (balcony && !accommodation.balcony) {
+        match = false;
+      }
+      if (petFriendly && !accommodation.petFriendly) {
+        match = false;
+      }
+      if (pool && !accommodation.pool) {
+        match = false;
+      }
+      if (garden && !accommodation.garden) {
         match = false;
       }
 
@@ -88,23 +107,14 @@ const Home = () => {
 
   return (
     <div className="m-4">
-      <h1 className="text-xl">List of Accomodations</h1>
-      <div className="flex mb-4">
-        <TextField
-          label="ID"
-          name="id"
-          type="number"
-          value={filterValues.id}
-          onChange={handleFilterChange}
-          className="mr-2"
-        />
+      <h1 className="text-4xl my-3">Lista de propiedades</h1>
+      <div className="flex flex-wrap gap-4">
         <TextField
           label="Precio mínimo"
           name="minPrice"
           type="number"
           value={filterValues.minPrice}
           onChange={handleFilterChange}
-          className="mr-2"
         />
         <TextField
           label="Precio máximo"
@@ -112,7 +122,6 @@ const Home = () => {
           type="number"
           value={filterValues.maxPrice}
           onChange={handleFilterChange}
-          className="mr-2"
         />
         <TextField
           label="Habitaciones"
@@ -120,7 +129,6 @@ const Home = () => {
           type="number"
           value={filterValues.rooms}
           onChange={handleFilterChange}
-          className="mr-2"
         />
         <TextField
           label="Metros cuadrados"
@@ -128,15 +136,13 @@ const Home = () => {
           type="number"
           value={filterValues.meters}
           onChange={handleFilterChange}
-          className="mr-2"
         />
-        <TextField
+        {/* <TextField
           label="Balcón"
           name="balcony"
           type="text"
           value={filterValues.balcony}
           onChange={handleFilterChange}
-          className="mr-2"
         />
         <TextField
           label="Pet Friendly"
@@ -144,7 +150,6 @@ const Home = () => {
           type="text"
           value={filterValues.petFriendly}
           onChange={handleFilterChange}
-          className="mr-2"
         />
         <TextField
           label="Piscina"
@@ -152,7 +157,6 @@ const Home = () => {
           type="text"
           value={filterValues.pool}
           onChange={handleFilterChange}
-          className="mr-2"
         />
         <TextField
           label="Jardín"
@@ -160,10 +164,31 @@ const Home = () => {
           type="text"
           value={filterValues.garden}
           onChange={handleFilterChange}
-          className="mr-2"
+        /> */}
+      </div>
+      <div className="flex items-center">
+        <Checkbox label="Balcón" name="balcony" onChange={handleFilterChange} />
+        <p className="">Balcón</p>
+      </div>
+      <div className="flex items-center">
+        <Checkbox
+          label="Pet Friendly"
+          name="petFriendly"
+          onChange={handleFilterChange}
         />
+        <p className="">Pet Friendly</p>
+      </div>
+      <div className="flex items-center">
+        <Checkbox label="Piscina" name="pool" onChange={handleFilterChange} />
+        <p className="">Piscina</p>
+      </div>
+      <div className="flex items-center">
+        <Checkbox label="Jardín" name="garden" onChange={handleFilterChange} />
+        <p className="">Jardín</p>
+      </div>
 
-        <Button className="mr-2" variant="contained" onClick={applyFilters}>
+      <div className="flex flex-wrap gap-4 my-4">
+        <Button className="" variant="contained" onClick={applyFilters}>
           Aplicar Filtros
         </Button>
         <Button
@@ -178,10 +203,15 @@ const Home = () => {
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
-              <TableCell align="left">Title</TableCell>
-              <TableCell align="left">Advertiser</TableCell>
-              <TableCell align="right">Price</TableCell>
-              <TableCell align="right">Rooms</TableCell>
+              <TableCell align="left">Titulo</TableCell>
+              <TableCell align="left">Anunciante</TableCell>
+              <TableCell align="right">Precio</TableCell>
+              <TableCell align="right">Habitaciones</TableCell>
+              <TableCell align="right">Metros</TableCell>
+              <TableCell align="right">Con Balcón</TableCell>
+              <TableCell align="right">Pet Friendly</TableCell>
+              <TableCell align="right">Con Piscina</TableCell>
+              <TableCell align="right">Con Jardín</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -197,6 +227,35 @@ const Home = () => {
                 <TableCell align="left">{row.advertiser}</TableCell>
                 <TableCell align="right">{row.price}</TableCell>
                 <TableCell align="right">{row.rooms}</TableCell>
+                <TableCell align="right">{row.meters}</TableCell>
+                <TableCell align="right">
+                  {row.balcony ? (
+                    <CheckIcon color="secondary" />
+                  ) : (
+                    <ClearIcon color="disabled" />
+                  )}
+                </TableCell>
+                <TableCell align="right">
+                  {row.petFriendly ? (
+                    <CheckIcon color="secondary" />
+                  ) : (
+                    <ClearIcon color="disabled" />
+                  )}
+                </TableCell>
+                <TableCell align="right">
+                  {row.pool ? (
+                    <CheckIcon color="secondary" />
+                  ) : (
+                    <ClearIcon color="disabled" />
+                  )}
+                </TableCell>
+                <TableCell align="right">
+                  {row.garden ? (
+                    <CheckIcon color="secondary" />
+                  ) : (
+                    <ClearIcon color="disabled" />
+                  )}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
