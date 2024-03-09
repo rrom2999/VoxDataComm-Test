@@ -67,7 +67,7 @@ const Home = () => {
       if (rooms && accommodation.rooms !== parseInt(rooms)) {
         match = false;
       }
-      if (meters && accommodation.meters !== parseInt(meters)) {
+      if (meters && accommodation.s_meters <= parseInt(meters)) {
         match = false;
       }
       if (balcony && !accommodation.balcony) {
@@ -99,6 +99,42 @@ const Home = () => {
     link.href = url;
     link.download = "filtered-data.csv";
     link.click();
+  };
+
+  const [data, setData] = useState([]);
+  const [columnArray, setColumnArray] = useState([]);
+  const [valuesArray, setValuesArray] = useState([]);
+
+  const handleFile = (e) => {
+    Papa.parse(e.target.files[0], {
+      header: true,
+      skipEmptyLines: true,
+      complete: function (result) {
+        const columnArray = [];
+        const valuesArray = [];
+
+        result.data.map((d) => {
+          columnArray.push(Object.keys(d));
+          valuesArray.push(Object.values(d));
+        });
+
+        setData(result.data);
+        setColumnArray(columnArray[0]);
+        setValuesArray(valuesArray);
+      },
+    });
+  };
+
+  const sendData = () => {
+    const url = "http://localhost:3000/update-accomodation";
+    axios
+      .put(url, valuesArray)
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
   };
 
   useEffect(() => {
@@ -186,7 +222,6 @@ const Home = () => {
         <Checkbox label="Jardín" name="garden" onChange={handleFilterChange} />
         <p className="">Jardín</p>
       </div>
-
       <div className="flex flex-wrap gap-4 my-4">
         <Button className="" variant="contained" onClick={applyFilters}>
           Aplicar Filtros
@@ -196,6 +231,18 @@ const Home = () => {
           onClick={() => generateCSV(filteredAccommodations)}
         >
           Descargar CSV
+        </Button>
+      </div>
+      <div>
+        <h2 className="text-2xl my-3">Importar CSV</h2>
+        <input
+          type="file"
+          name="file"
+          accept=".csv"
+          onChange={handleFile}
+        ></input>
+        <Button onClick={sendData} variant="contained">
+          Send data to API
         </Button>
       </div>
       <TableContainer className="w-full" component={Paper}>
@@ -227,7 +274,7 @@ const Home = () => {
                 <TableCell align="left">{row.advertiser}</TableCell>
                 <TableCell align="right">{row.price}</TableCell>
                 <TableCell align="right">{row.rooms}</TableCell>
-                <TableCell align="right">{row.meters}</TableCell>
+                <TableCell align="right">{row.s_meters}</TableCell>
                 <TableCell align="right">
                   {row.balcony ? (
                     <CheckIcon color="secondary" />

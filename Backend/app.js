@@ -333,6 +333,138 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.put("/update-accomodation", async (req, res) => {
+  console.log("update-accomodation");
+  const data = req.body;
+  console.log(data);
+
+  const connection = await mysql.createConnection(dbConfig);
+  const columns = [
+    "latitude",
+    "longitude",
+    "id",
+    "title",
+    "advertiser",
+    "ad_description",
+    "reformed",
+    "phone_number",
+    "accomodation_type",
+    "price",
+    "price_per_meter",
+    "address",
+    "province",
+    "city",
+    "s_meters",
+    "rooms",
+    "bathrooms",
+    "parking",
+    "second_hand",
+    "fitted_wardrobes",
+    "built_in",
+    "furnished",
+    "heating",
+    "e_certification",
+    "floor",
+    "exterior",
+    "indoor",
+    "elevator",
+    "ad_date",
+    "street",
+    "neighborhood",
+    "district",
+    "terrace",
+    "storage_room",
+    "kitchen",
+    "equipped_kitchen",
+    "air_conditioning",
+    "pool",
+    "garden",
+    "useful_s_meters",
+    "reduced_mobility_friendly",
+    "floors",
+    "pet_friendly",
+    "balcony",
+  ];
+  const quotedColumns = columns.map((column) => `\`${column}\``).join(", ");
+  for (const row of data) {
+    let counter = 0;
+    const values = Object.values(row)
+      .map((value) => {
+        // Validate the index of the value to set the correct type
+        // Columns that should be decimal: "Latitud", "Longitud", "Precio", "Precio por metro"
+        // Indexes that should be decimal: 0, 1, 9, 10
+
+        // Columns that should be int: "Metros cuadrados", "Habitaciones", "Baños", "Construido en", "Metros cuadrados útiles", "Plantas"
+        // Indexes that should be int: 14, 15, 16, 20, 39, 41
+
+        // Columns that should be boolean: "Reformado", "Parking", "Segunda mano", "Armarios empotrados", "Amueblado", "Calefacción individual", "Exterior", "Interior", "Ascensor", "Terraza", "Trastero", "Cocina Equipada", "Cocina equipada", "Aire acondicionado", "Piscina", "Jardín", "Apto para personas con movilidad reducida", "Se adminten mascotas", "Balcón"
+        // Indexes that should be boolean: 6, 17, 18, 19, 21, 22, 25, 26, 27, 32, 33, 34, 35, 36, 37, 38, 40, 42, 43
+
+        // Columns that should be date: "Fecha"
+        // Indexes that should be date: 28
+
+        // The rest should be treated as a string
+
+        if (counter === 0 || counter === 1 || counter === 9 || counter === 10) {
+          value = parseFloat(value);
+        } else if (
+          counter === 14 ||
+          counter === 15 ||
+          counter === 16 ||
+          counter === 20 ||
+          counter === 39 ||
+          counter === 41
+        ) {
+          value = parseInt(value);
+          if (isNaN(value)) {
+            value = "NULL";
+          }
+        } else if (
+          counter === 6 ||
+          counter === 17 ||
+          counter === 18 ||
+          counter === 19 ||
+          counter === 21 ||
+          counter === 22 ||
+          counter === 25 ||
+          counter === 26 ||
+          counter === 27 ||
+          counter === 32 ||
+          counter === 33 ||
+          counter === 34 ||
+          counter === 35 ||
+          counter === 36 ||
+          counter === 37 ||
+          counter === 38 ||
+          counter === 40 ||
+          counter === 42 ||
+          counter === 43
+        ) {
+          value = value === "TRUE";
+        } else if (counter === 28) {
+          const dateRegex = /\d{4}\/\d{2}\/\d{2}/;
+          const dateMatch = value.match(dateRegex);
+          if (dateMatch) {
+            value = `"${value}"`;
+          } else {
+            value = "NULL";
+          }
+        } else if (counter == 5) {
+          value = `"Description not available"`;
+        } else {
+          value = `"${value}"`;
+        }
+      })
+      .join(", ");
+
+    counter++;
+    const sqlInsert = `INSERT INTO accomodation (${quotedColumns}) VALUES (${values})`;
+    console.log(sqlInsert);
+    const [result] = await connection.query(sqlInsert);
+  }
+  res.json("Data updated");
+});
+
 app.get("/get-accomodations", async (req, res) => {
   const connection = await mysql.createConnection(dbConfig);
   const [rows] = await connection.query("SELECT * FROM accomodation");
