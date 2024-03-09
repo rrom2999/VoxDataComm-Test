@@ -93,7 +93,6 @@ app.get("/read-csv", async (req, res) => {
 
       const quotedColumns = columns.map((column) => `\`${column}\``).join(", ");
 
-      // get key indexes for each column
       const keys = Object.keys(row);
       let columnCounter = 0;
 
@@ -309,14 +308,11 @@ app.post("/login", async (req, res) => {
   const connection = await mysql.createConnection(dbConfig);
 
   try {
-    // 1. Usa la sintaxis de placeholders para evitar inyección SQL
     const sql = "SELECT * FROM users WHERE email = ? AND pass = ?";
     const values = [email, password];
 
-    // 2. Ejecuta la consulta con valores seguros
     const [result] = await connection.query(sql, values);
     console.log(result);
-    // 3. Verifica la respuesta de la consulta
     if (result.length > 0) {
       console.log("Login successful");
       res.json({ message: "Login successful" });
@@ -328,7 +324,6 @@ app.post("/login", async (req, res) => {
     console.error("Error during login:", error);
     res.status(500).json({ message: "Internal server error" });
   } finally {
-    // 4. Cierra la conexión a la base de datos
     await connection.end();
   }
 });

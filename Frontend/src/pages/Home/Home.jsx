@@ -173,34 +173,6 @@ const Home = () => {
           value={filterValues.meters}
           onChange={handleFilterChange}
         />
-        {/* <TextField
-          label="Balcón"
-          name="balcony"
-          type="text"
-          value={filterValues.balcony}
-          onChange={handleFilterChange}
-        />
-        <TextField
-          label="Pet Friendly"
-          name="petFriendly"
-          type="text"
-          value={filterValues.petFriendly}
-          onChange={handleFilterChange}
-        />
-        <TextField
-          label="Piscina"
-          name="pool"
-          type="text"
-          value={filterValues.pool}
-          onChange={handleFilterChange}
-        />
-        <TextField
-          label="Jardín"
-          name="garden"
-          type="text"
-          value={filterValues.garden}
-          onChange={handleFilterChange}
-        /> */}
       </div>
       <div className="flex items-center">
         <Checkbox label="Balcón" name="balcony" onChange={handleFilterChange} />
